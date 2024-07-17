@@ -1,0 +1,51 @@
+package thirdParty
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/AlecAivazis/survey/v2"
+	"n2x.dev/x-api-go/grpc/resources/services/thirdParty"
+	"n2x.dev/x-cli/pkg/input"
+	"n2x.dev/x-cli/pkg/output"
+)
+
+func (a *API) Slack(slck *thirdParty.Slack) *thirdParty.Slack {
+	output.Header("Slack Setup")
+
+	if input.GetConfirm("Configure or delete Slack integration?", true) {
+		fmt.Println()
+
+		if slck == nil {
+			slck = &thirdParty.Slack{}
+		}
+
+		if slck.Enabled {
+			if input.GetConfirm("Delete Slack integration?", false) {
+				slck = &thirdParty.Slack{}
+			}
+		} else {
+			slck.BotUserOAuthAccessToken = strings.TrimSpace(input.GetInput(
+				"Slack Bot User OAuth Access Token:",
+				"",
+				slck.BotUserOAuthAccessToken,
+				survey.Required,
+			))
+			slck.VerificationToken = strings.TrimSpace(input.GetInput(
+				"Slack Verification Token:",
+				"",
+				slck.VerificationToken,
+				survey.Required,
+			))
+			slck.SigningSecret = strings.TrimSpace(input.GetInput(
+				"Slack Signing Secret:",
+				"",
+				slck.SigningSecret,
+				survey.Required,
+			))
+			slck.Enabled = true
+		}
+	}
+
+	return slck
+}

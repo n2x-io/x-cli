@@ -1,0 +1,311 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+version: 2
+
+project_name: n2x-cli
+
+dist: _dist
+
+# env_files:
+#   github_token: ~/.cloud/github/github_token.buildbot
+
+env:
+  - GO111MODULE=on
+  # - PKG_REPO='n2x-io'
+  # - PKG_REPO_DEV='n2x-dev'
+
+before:
+  hooks:
+    # - go mod tidy -v
+    # - go mod vendor
+    # - go mod verify
+    # - go generate $(go list ./... | grep -v /vendor/)
+    # - go fmt $(go list ./... | grep -v '/vendor/' | grep -v '.pb.go' | grep -v '.twirp.go' | grep -v 'bindata.go') | tee /dev/stderr
+    - ./scripts/completions.sh
+
+builds:
+  - id: "n2x-cli"
+    main: cmd/cli/main.go
+    binary: n2xctl
+    flags:
+      #- -tags=dev
+      - -tags="static_build,netgo"
+      - -v
+      - -a
+      - -mod=vendor
+      - -installsuffix=netgo
+      - -trimpath
+      #- -race # requires CGO_ENABLED=1
+    # Custom ldflags templates.
+    # Default is `-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser`.
+    ldflags:
+      - -s
+      - -w
+      - -X n2x.dev/x-lib/pkg/version.GitRepository={{.GitURL}}
+      - -X n2x.dev/x-lib/pkg/version.GitCommit={{.ShortCommit}}
+      - -X n2x.dev/x-lib/pkg/version.VersionNumber={{.Tag}}
+      - -X n2x.dev/x-lib/pkg/version.VersionDate={{.Env.VERSION_DATE}}
+      - -X n2x.dev/x-lib/pkg/version.GoVersion={{.Env.GO_VERSION}}
+      - -extldflags -static
+      #- ./usemsan=-msan
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    goamd64:
+      - v1
+      # - v2
+      # - v3
+      # - v4
+    goarm:
+      - "6"
+      ## - "7"
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+    # lang: go
+
+snapshot:
+  # name_template: '{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}'
+  # name_template: '{{ .Version }}-SNAPSHOT-{{.ShortCommit}}'
+  name_template: "{{ .Version }}-{{.Env.VERSION_DATE}}-SNAPSHOT-{{.ShortCommit}}"
+
+checksum:
+  # name_template: '{{ .ProjectName }}_{{ .Tag }}_checksums.txt'
+  # name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+signs:
+  - cmd: cosign
+    # env:
+      # - COSIGN_EXPERIMENTAL=1
+    stdin: "{{ .Env.COSIGN_PWD }}"
+    # certificate: "${artifact}.pem"
+    args:
+      - "sign-blob"
+      - "--key=/cosign/cosign.key"
+      # - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes" # needed on cosign 2.0.0+
+    artifacts: checksum
+    output: false
+
+docker_signs:
+  - cmd: cosign
+    # env:
+      # - COSIGN_EXPERIMENTAL=1
+    stdin: "{{ .Env.COSIGN_PWD }}"
+    args:
+      - "sign"
+      - "--key=/cosign/cosign.key"
+      - "${artifact}"
+      - "--yes" # needed on cosign 2.0.0+
+    artifacts: manifests
+    output: false
+
+sboms:
+  - artifacts: archive
+
+archives:
+  - id: n2x-cli
+    builds:
+      - n2x-cli
+    # name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    wrap_in_directory: false
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - ./README.md
+      - ./SECURITY.md
+      - ./SUPPORT.md
+      - ./LICENSE
+      - src: ./_build/completions/*
+        dst: completions
+        strip_parent: true
+        info:
+          owner: root
+          group: root
+          mode: 0644
+
+brews:
+  - repository:
+      owner: n2x-io
+      name: homebrew-tap
+      branch: master
+    directory: Formula
+    goarm: "6"
+    goamd64: v1
+    commit_author:
+      name: n2xbot
+      email: xbot@n2x.dev
+    homepage: https://n2x.io
+    description: n2x-cli
+    license: "Apache License 2.0"
+    test: |
+      system "#{bin}/n2xctl version show"
+    install: |-
+      bin.install "n2xctl"
+      bash_completion.install "completions/n2xctl.bash" => "n2xctl"
+      zsh_completion.install "completions/n2xctl.zsh" => "_n2xctl"
+      fish_completion.install "completions/n2xctl.fish"
+
+nfpms:
+  - id: n2x-cli
+    package_name: n2x-cli
+    # file_name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
+    # file_name_template: "{{ .ProjectName }}_{{ .Arch }}"
+    # file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    file_name_template: "{{ .ConventionalFileName }}"
+    builds:
+      - n2x-cli
+    vendor: n2x.io
+    homepage: https://n2x.io
+    maintainer: n2xbot <xbot@n2x.dev>
+    description: |-
+      n2x command line interface for interacting with the n2x SASE platform.
+    license: "Apache License 2.0"
+    formats:
+      - deb
+      - rpm
+      - apk
+    bindir: /usr/bin
+    section: misc
+    priority: optional
+    meta: false
+    contents:
+      # basic files that apply to all packagers
+      - src: ./README.md
+        dst: /usr/share/doc/n2x-cli/README.md
+      - src: ./SECURITY.md
+        dst: /usr/share/doc/n2x-cli/SECURITY.md
+      - src: ./SUPPORT.md
+        dst: /usr/share/doc/n2x-cli/SUPPORT.md
+      - src: ./LICENSE
+        dst: /usr/share/doc/n2x-cli/LICENSE
+      - src: ./_build/completions/n2xctl.bash
+        dst: /usr/share/bash-completion/completions/n2xctl
+        file_info:
+          mode: 0644
+      - src: ./_build/completions/n2xctl.fish
+        dst: /usr/share/fish/completions/n2xctl.fish
+        file_info:
+          mode: 0644
+      - src: ./_build/completions/n2xctl.zsh
+        dst: /usr/share/zsh/vendor-completions/_n2xctl
+        file_info:
+          mode: 0644
+    deb:
+      lintian_overrides:
+        - statically-linked-binary
+        - changelog-file-missing-in-native-package
+
+dockers:
+  - dockerfile: ./build/package/dockerfiles/Dockerfile
+    skip_push: false
+    image_templates:
+      # - "n2xdev/n2xctl:latest"
+      # - "n2xdev/n2xctl:snapshot"
+      # - "n2xdev/n2xctl:dev"
+      # - "n2xdev/n2xctl:stable"
+      # - "n2xdev/n2xctl:{{ .Tag }}"
+      # - "n2xdev/n2xctl:{{ .Tag }}-{{ .Env.GO_VERSION }}"
+      # - "n2xdev/n2xctl:v{{ .Major }}"
+      # - "n2xdev/n2xctl:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/n2x-io/n2xctl:latest"
+      - "ghcr.io/n2x-io/n2xctl:snapshot"
+      - "ghcr.io/n2x-io/n2xctl:dev"
+      - "ghcr.io/n2x-io/n2xctl:stable"
+      - "ghcr.io/n2x-io/n2xctl:{{ .Tag }}"
+      - "ghcr.io/n2x-io/n2xctl:{{ .Tag }}-{{ .Env.GO_VERSION }}"
+      - "ghcr.io/n2x-io/n2xctl:v{{ .Major }}"
+      - "ghcr.io/n2x-io/n2xctl:v{{ .Major }}.{{ .Minor }}"
+    use: buildx
+    goos: linux
+    goarch: amd64
+    build_flag_templates:
+      - "--pull"
+      - "--label=io.artifacthub.package.readme-url=https://raw.githubusercontent.com/n2x-io/x-cli/master/README.md"
+      - "--label=io.artifacthub.package.license=Apache License 2.0"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      # - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--label=org.opencontainers.image.source=https://github.com/n2x-io/x-cli"
+      - "--platform=linux/amd64"
+      - "--rm"
+      - "--force-rm"
+      - "--no-cache"
+
+release:
+  github:
+    owner: n2x-io
+    name: x-cli
+  draft: false
+  prerelease: auto # auto | true | false
+  name_template: "{{.Tag}}"
+  disable: false
+  # extra_files:
+  #   - glob: ./_dist/*.sig
+  footer: |
+    **Full Changelog**: https://github.com/n2x-io/x-cli/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+    ## What to do next?
+
+    - Read the [documentation](https://n2x.io/docs/)
+    - Join our [Discord server](https://n2x.io/discord)
+    - Follow us on [X](https://x.com/n2xHQ)
+    - Follow us on [Mastodon](https://mastodon.social/@n2x)
+
+changelog:
+  disable: false
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^doc"
+      - "^chore"
+      - "^wip"
+      - "^test"
+      - "^typo"
+      - "^Merge"
+
+announce:
+  discord:
+    enabled: true
+    author: n2x
+    color: "46299"
+    icon_url: https://raw.githubusercontent.com/n2x-io/assets/master/images/logo/n2x-logo_black-blue_400x400.png
+  twitter:
+    enabled: false
+# publishers:
+#   # dev repos
+#   - name: repo.n2x.dev/apt
+#     cmd: ./build/_deps/scripts/_local/build/pkg-upload.sh '{{ dir .ArtifactPath }}/{{ .ProjectName }}ctl_{{ .Tag }}_{{ .Os }}_{{ .Arch }}.deb' '{{.Env.PKG_REPO_DEV}}'
+#   - name: repo.n2x.dev/yum
+#     cmd: ./build/_deps/scripts/_local/build/pkg-upload.sh '{{ dir .ArtifactPath }}/{{ .ProjectName }}ctl_{{ .Tag }}_{{ .Os }}_{{ .Arch }}.rpm' '{{.Env.PKG_REPO_DEV}}'
+#   # stable repos
+#   - name: repo.n2x.io/apt
+#     cmd: ./build/_deps/scripts/_local/build/pkg-upload.sh '{{ dir .ArtifactPath }}/{{ .ProjectName }}ctl_{{ .Tag }}_{{ .Os }}_{{ .Arch }}.deb' '{{.Env.PKG_REPO}}'
+#   - name: repo.n2x.io/yum
+#     cmd: ./build/_deps/scripts/_local/build/pkg-upload.sh '{{ dir .ArtifactPath }}/{{ .ProjectName }}ctl_{{ .Tag }}_{{ .Os }}_{{ .Arch }}.rpm' '{{.Env.PKG_REPO}}'

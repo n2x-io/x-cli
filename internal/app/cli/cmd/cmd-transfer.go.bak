@@ -1,0 +1,47 @@
+package cmd
+
+import (
+	"github.com/spf13/cobra"
+	"n2x.dev/x-cli/pkg/client"
+)
+
+var transferCmd = &cobra.Command{
+	Use:   "cp <nodeSpec>:(<dir>|<file>) <nodeSpec>:<dir>",
+	Short: "Transfer file and directories between nodes",
+	Long: appHeader(`Transfer files and directories between nodes.
+
+An existing writable directory must be specified in <dst> when a file
+is specified in <src>.
+
+It supports recursive transfers when a directory is specified in <src>.
+If an existing directory is specified in <src>, recursive mode is automatically
+enabled and <dst> directory is created if not found on the target node.
+
+Syntax:
+  cp <src> <dst>
+
+Parameters:
+  <src>       <nodeSpec>:(<dir>|<file>)
+  <dst>       <nodeSpec>:<dir>
+
+  <nodeSpec>  ( localhost | <account>:<tenant>:<network>:<subnet>:<node> )
+  <dir>       existing directory
+  <file>      existing file
+
+Examples:
+  n2xctl cp localhost:/tmp/file.txt acc1:default:n1:subnet-000:node1:/tmp/
+  n2xctl cp localhost:/tmp/dir/ acc1:default:n1:subnet-000:node1:/tmp/dir/
+  n2xctl cp acc1:default:n1:subnet-000:node1:/tmp/dir1/ localhost:/tmp/dir2/
+  n2xctl cp acc1:default:n1:subnet-000:node1:/tmp/f.txt localhost:/tmp/dir3/
+
+	`),
+	Args: cobra.ExactArgs(2),
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.Command().Transfer(args)
+	},
+}
+
+func init() {}

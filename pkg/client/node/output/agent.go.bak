@@ -1,0 +1,121 @@
+package output
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+
+	"n2x.dev/x-api-go/grpc/resources/topology"
+	"n2x.dev/x-cli/pkg/output"
+	"n2x.dev/x-lib/pkg/utils/colors"
+	"n2x.dev/x-lib/pkg/utils/msg"
+)
+
+func agentInfo(na *topology.Agent) {
+	if na == nil {
+		msg.Alert("No data found, agent is not registered yet")
+		os.Exit(0)
+	}
+
+	if na.Metrics == nil {
+		fmt.Printf("[%s]\n\n", colors.Black("not enough data yet"))
+		os.Exit(0)
+	}
+
+	if na.Metrics.HostMetrics == nil {
+		fmt.Printf("[%s]\n\n", colors.Black("not enough data yet"))
+		os.Exit(0)
+	}
+
+	var status string
+	if na.Healthy {
+		status = output.StrOnline()
+	} else {
+		status = output.StrOffline()
+	}
+
+	var relay string
+	if na.IsRelay {
+		relay = output.StrTier1()
+	}
+
+	var extIP string
+	if len(na.ExternalIPv4) > 0 {
+		extIP = "[externalIP: " + colors.DarkGreen(na.ExternalIPv4) + "]"
+	} else {
+		extIP = "[externalIP: " + colors.DarkGreen("n/a") + "]"
+	}
+
+	port := "[n2xPort: " + colors.DarkGreen(fmt.Sprintf("%d", na.Port)) + "]"
+	prio := "[priority " + colors.Yellow(fmt.Sprintf("%d", na.Priority)) + "]"
+
+	var disableExec, disableTransfer, disablePortFwd, disableOps string
+	if na.Management != nil {
+		if na.Management.DisableExec {
+			disableExec = output.StrDisabled("exec")
+		} else {
+			disableExec = output.StrEnabled("exec")
+		}
+		if na.Management.DisableTransfer {
+			disableTransfer = output.StrDisabled("transfer")
+		} else {
+			disableTransfer = output.StrEnabled("transfer")
+		}
+		if na.Management.DisablePortForwarding {
+			disablePortFwd = output.StrDisabled("portForward")
+		} else {
+			disablePortFwd = output.StrEnabled("portForward")
+		}
+		if na.Management.DisableOps {
+			disableOps = output.StrDisabled("workflows")
+		} else {
+			disableOps = output.StrEnabled("workflows")
+		}
+	}
+
+	var autoUpdate, maintSched string
+	if na.Maintenance != nil {
+		if na.Maintenance.AutoUpdate {
+			autoUpdate = output.StrEnabled("auto-update")
+		} else {
+			autoUpdate = output.StrDisabled("auto-update")
+		}
+		if na.Maintenance.Schedule != nil {
+			maintHour := colors.DarkGreen(fmt.Sprintf("%02d", na.Maintenance.Schedule.Hour))
+			maintMin := colors.DarkGreen(fmt.Sprintf("%02d", na.Maintenance.Schedule.Minute))
+			maintSched = fmt.Sprintf("%s:%s", maintHour, maintMin)
+		} else {
+			maintSched = colors.Black("-")
+		}
+	}
+
+	var k8sGw, dnsPort string
+	if na.Options != nil {
+		if na.Options.KubernetesGw {
+			k8sGw = "[" + colors.Green("k8sGw") + "]"
+		}
+		dnsPort = "[dnsPort: " + colors.DarkGreen("udp/"+strconv.Itoa(int(na.Options.DNSPort))) + "]"
+	}
+
+	netInfo := fmt.Sprintf("%s %s %s", extIP, port, dnsPort)
+	rtInfo := fmt.Sprintf("%s %s %s", prio, relay, k8sGw)
+	opts := fmt.Sprintf("%s %s %s %s", disableExec, disableTransfer, disablePortFwd, disableOps)
+	maint := fmt.Sprintf("%s | Schedule: %s", autoUpdate, maintSched)
+
+	s1 := fmt.Sprint(colors.Black("■"))
+	s2 := fmt.Sprint(colors.Black("├─"))
+	s3 := fmt.Sprint(colors.Black("└─"))
+
+	h := fmt.Sprint(colors.White(na.AgentID))
+	uptime := fmt.Sprint(colors.DarkWhite(na.Metrics.HostMetrics.Uptime))
+
+	fmt.Printf("%s Hostname: %s [uptime %s] %s\n", s1, h, uptime, status)
+	fmt.Printf("%s Maint:   %s\n", s2, maint)
+	fmt.Printf("%s Options: %s\n", s2, opts)
+	fmt.Printf("%s NetInfo: %s\n", s2, netInfo)
+	fmt.Printf("%s Routing: %s\n", s2, rtInfo)
+	fmt.Printf("%s LoadAvg: %s | Memory: %s | Disk: %s\n\n", s3,
+		colors.DarkWhite(fmt.Sprintf("%f", na.Metrics.HostMetrics.LoadAvg)),
+		output.PercentBar(int(na.Metrics.HostMetrics.MemoryUsage)),
+		output.PercentBar(int(na.Metrics.HostMetrics.DiskUsage)))
+}

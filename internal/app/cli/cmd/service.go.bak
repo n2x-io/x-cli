@@ -1,0 +1,46 @@
+package cmd
+
+import (
+	"github.com/spf13/cobra"
+	"n2x.dev/x-cli/pkg/client"
+)
+
+// serviceCmd represents the service command
+var serviceCmd = &cobra.Command{
+	Use:   "service",
+	Short: "Marketplace of professional services for your n2x network",
+	Long:  appHeader(`Marketplace of professional services for your n2x network.`),
+}
+
+// serviceCatalogListCmd represents the service/crm list verb
+var serviceCatalogListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List product/services in n2x marketplace",
+	Long:  appHeader(`List product/services in n2x marketplace.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.Services().Product().List(true)
+	},
+}
+
+// serviceCatalogShowCmd represents the service/crm show verb
+var serviceCatalogShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show product/service in n2x marketplace",
+	Long:  appHeader(`Show product/service in n2x marketplace.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.Services().Product().Show(true)
+	},
+}
+
+func init() {
+	serviceCmd.AddCommand(serviceCatalogListCmd)
+	serviceCmd.AddCommand(serviceCatalogShowCmd)
+}

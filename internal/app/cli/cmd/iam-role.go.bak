@@ -1,0 +1,77 @@
+package cmd
+
+import (
+	"github.com/spf13/cobra"
+	"n2x.dev/x-cli/pkg/client"
+)
+
+// iamRolesCmd represents the iamRoles command
+var iamRolesCmd = &cobra.Command{
+	Use:   "role",
+	Short: "IAM roles adminstration",
+	Long:  appHeader(`IAM roles adminstration operations.`),
+}
+
+// iamRolesListCmd represents the iam/roles list verb
+var iamRolesListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List roles",
+	Long:  appHeader(`List all roles.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.Role().List()
+	},
+}
+
+// iamRolesShowCmd represents the iam/roles get verb
+var iamRolesShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show role",
+	Long:  appHeader(`Show role details.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.Role().Show()
+	},
+}
+
+// iamRolesSetCmd represents the iam/roles set verb
+var iamRolesSetCmd = &cobra.Command{
+	Use:   "set",
+	Short: "Create or update role",
+	Long:  appHeader(`Create or update role.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.Role().Set()
+	},
+}
+
+// iamRolesDeleteCmd represents the iam/roles delete verb
+var iamRolesDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete role",
+	Long:  appHeader(`Delete role.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.Role().Delete()
+	},
+}
+
+func init() {
+	iamCmd.AddCommand(iamRolesCmd)
+	iamRolesCmd.AddCommand(iamRolesListCmd)
+	iamRolesCmd.AddCommand(iamRolesShowCmd)
+	iamRolesCmd.AddCommand(iamRolesSetCmd)
+	iamRolesCmd.AddCommand(iamRolesDeleteCmd)
+}

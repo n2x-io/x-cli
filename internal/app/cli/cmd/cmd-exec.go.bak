@@ -1,0 +1,28 @@
+package cmd
+
+import (
+	"github.com/spf13/cobra"
+	"n2x.dev/x-cli/pkg/client"
+	"n2x.dev/x-cli/pkg/vars"
+)
+
+// execCmd represents the mmp cmdExec
+var execCmd = &cobra.Command{
+	Use:   "exec [flags] [-- <command>]",
+	Short: "Execute command on target node",
+	Long:  appHeader(`Execute command on target node`),
+	Args:  cobra.MinimumNArgs(0),
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.Command().Exec(args)
+	},
+}
+
+func init() {
+	execCmd.Flags().StringVarP(&vars.TenantID, "tenant", "t", "", "tenant identifier (optional)")
+	execCmd.Flags().StringVarP(&vars.NetID, "network", "n", "", "network identifier (optional)")
+	execCmd.Flags().StringVarP(&vars.SubnetID, "subnet", "s", "", "subnet identifier (optional)")
+	execCmd.Flags().StringVarP(&vars.NodeID, "node", "x", "", "node identifier (optional)")
+}

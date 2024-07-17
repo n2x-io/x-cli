@@ -1,0 +1,33 @@
+package setup
+
+import (
+	"fmt"
+
+	"n2x.dev/x-cli/pkg/input"
+	"n2x.dev/x-cli/pkg/output"
+)
+
+func Configure() bool {
+	output.SubTitleT1("Setup")
+
+	var isConfigured bool
+
+	if input.GetConfirm("Want to configure the CLI for an existing account?", false) {
+		fmt.Println()
+		setupExistingAccount()
+		return true
+	}
+
+	/*
+	if input.GetConfirm("Want to create a new account?", false) {
+		fmt.Println()
+		client.Account().New()
+		return true
+	}
+	*/
+
+
+	fmt.Println()
+
+	return isConfigured
+}

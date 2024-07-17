@@ -1,0 +1,77 @@
+package cmd
+
+import (
+	"github.com/spf13/cobra"
+	"n2x.dev/x-cli/pkg/client"
+)
+
+// iamACLsCmd represents the iamACLs command
+var iamACLsCmd = &cobra.Command{
+	Use:   "acl",
+	Short: "IAM ACLs adminstration",
+	Long:  appHeader(`IAM ACLs adminstration operations.`),
+}
+
+// iamACLsListCmd represents the iam/roles list verb
+var iamACLsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List ACLs",
+	Long:  appHeader(`List all ACLs.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.ACL().List()
+	},
+}
+
+// iamACLsShowCmd represents the iam/roles get verb
+var iamACLsShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show ACL",
+	Long:  appHeader(`Show ACL details.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.ACL().Show()
+	},
+}
+
+// iamACLsSetCmd represents the iam/roles set verb
+var iamACLsSetCmd = &cobra.Command{
+	Use:   "set",
+	Short: "Create or update ACL",
+	Long:  appHeader(`Create or update ACL.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.ACL().Set()
+	},
+}
+
+// iamACLsDeleteCmd represents the iam/roles delete verb
+var iamACLsDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete ACL",
+	Long:  appHeader(`Delete ACL.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.ACL().Delete()
+	},
+}
+
+func init() {
+	iamCmd.AddCommand(iamACLsCmd)
+	iamACLsCmd.AddCommand(iamACLsListCmd)
+	iamACLsCmd.AddCommand(iamACLsShowCmd)
+	iamACLsCmd.AddCommand(iamACLsSetCmd)
+	iamACLsCmd.AddCommand(iamACLsDeleteCmd)
+}

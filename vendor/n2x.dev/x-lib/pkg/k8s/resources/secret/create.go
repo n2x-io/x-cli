@@ -1,0 +1,35 @@
+package secret
+
+import (
+	"context"
+
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"n2x.dev/x-lib/pkg/errors"
+	"n2x.dev/x-lib/pkg/k8s/config"
+)
+
+func (a *API) Create(s *corev1.Secret) (*corev1.Secret, error) {
+	if err := a.Delete(s.ObjectMeta.Namespace, s.ObjectMeta.Name); err != nil {
+		return nil, errors.Wrapf(err, "[%v] function a.Get()", errors.Trace())
+	}
+
+	if a.clientset == nil {
+		clientset, err := config.NewClient(a.KubeConfig)
+		if err != nil {
+			return nil, errors.Wrapf(err, "[%v] function config.NewClient()", errors.Trace())
+		}
+		a.clientset = clientset
+	}
+
+	ctx := context.TODO()
+
+	createOpts := metav1.CreateOptions{}
+
+	s, err := a.clientset.CoreV1().Secrets(s.ObjectMeta.Namespace).Create(ctx, s, createOpts)
+	if err != nil {
+		return nil, errors.Wrapf(err, "[%v] function a.clientset.CoreV1().Secrets().Create()", errors.Trace())
+	}
+
+	return s, nil
+}

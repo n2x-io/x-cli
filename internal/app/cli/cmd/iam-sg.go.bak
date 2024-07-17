@@ -1,0 +1,77 @@
+package cmd
+
+import (
+	"github.com/spf13/cobra"
+	"n2x.dev/x-cli/pkg/client"
+)
+
+// iamSecurityGroupsCmd represents the iamSecurityGroups command
+var iamSecurityGroupsCmd = &cobra.Command{
+	Use:   "security-group",
+	Short: "IAM security-groups adminstration",
+	Long:  appHeader(`IAM security-groups adminstration operations.`),
+}
+
+// iamSecurityGroupsListCmd represents the iam/security-groups list verb
+var iamSecurityGroupsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List security-groups",
+	Long:  appHeader(`List all realm's security-groups.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.SecurityGroup().List()
+	},
+}
+
+// iamSecurityGroupsShowCmd represents the iam/security-groups get verb
+var iamSecurityGroupsShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show security-group",
+	Long:  appHeader(`Show security-group details.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.SecurityGroup().Show()
+	},
+}
+
+// iamSecurityGroupsSetCmd represents the iam/security-groups set verb
+var iamSecurityGroupsSetCmd = &cobra.Command{
+	Use:   "set",
+	Short: "Create or update security-group",
+	Long:  appHeader(`Create or update security-group.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.SecurityGroup().Set()
+	},
+}
+
+// iamSecurityGroupsDeleteCmd represents the iam/security-groups delete verb
+var iamSecurityGroupsDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete security-group",
+	Long:  appHeader(`Delete security-group.`),
+	Args:  cobra.NoArgs,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		preflight()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		client.SecurityGroup().Delete()
+	},
+}
+
+func init() {
+	iamCmd.AddCommand(iamSecurityGroupsCmd)
+	iamSecurityGroupsCmd.AddCommand(iamSecurityGroupsListCmd)
+	iamSecurityGroupsCmd.AddCommand(iamSecurityGroupsShowCmd)
+	iamSecurityGroupsCmd.AddCommand(iamSecurityGroupsSetCmd)
+	iamSecurityGroupsCmd.AddCommand(iamSecurityGroupsDeleteCmd)
+}

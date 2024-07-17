@@ -1,0 +1,69 @@
+package account
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/AlecAivazis/survey/v2"
+	"n2x.dev/x-api-go/grpc/resources/account"
+	thirdParty_pb "n2x.dev/x-api-go/grpc/resources/services/thirdParty"
+	"n2x.dev/x-cli/pkg/client/services/thirdParty"
+	"n2x.dev/x-cli/pkg/grpc"
+	"n2x.dev/x-cli/pkg/input"
+	"n2x.dev/x-cli/pkg/output"
+	"n2x.dev/x-cli/pkg/status"
+)
+
+func (api *API) Settings() {
+	a := FetchAccount()
+
+	Output().Configuration(a)
+
+	if !input.GetConfirm("Edit account configuration now?", false) {
+		fmt.Println()
+		return
+	}
+
+	nxc, grpcConn := grpc.GetAccountAPIClient(true)
+	defer grpcConn.Close()
+
+	fmt.Println()
+
+	a.Description = input.GetInput(
+		"Description:",
+		"",
+		a.Description,
+		survey.Required,
+	)
+
+	if a.Integrations == nil {
+		a.Integrations = &thirdParty_pb.Integrations{
+			Clickup:   &thirdParty_pb.ClickUp{},
+			Github:    &thirdParty_pb.GitHub{},
+			Pagerduty: &thirdParty_pb.PagerDuty{},
+			Slack:     &thirdParty_pb.Slack{},
+		}
+	}
+
+	a.Integrations.Clickup = thirdParty.Setup().ClickUp(a.Integrations.Clickup)
+	a.Integrations.Github = thirdParty.Setup().GitHub(a.Integrations.Github)
+	a.Integrations.Pagerduty = thirdParty.Setup().PagerDuty(a.Integrations.Pagerduty)
+	a.Integrations.Slack = thirdParty.Setup().Slack(a.Integrations.Slack)
+
+	s := output.Spinner()
+
+	air := &account.SetAccountIntegrationsRequest{
+		AccountID:    a.AccountID,
+		Integrations: a.Integrations,
+	}
+
+	a, err := nxc.SetAccountIntegrations(context.TODO(), air)
+	if err != nil {
+		s.Stop()
+		status.Error(err, "Unable to set account")
+	}
+
+	s.Stop()
+
+	Output().Configuration(a)
+}
