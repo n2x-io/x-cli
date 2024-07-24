@@ -67,7 +67,7 @@ func getExternalPort(externalIPv4 string) (int, error) {
 
 	var portAvailable bool
 	var externalPort int
-	for p := sxExternalPortMin; p < sxExternalPortMax; p++ {
+	for p := n2xExternalPortMin; p < n2xExternalPortMax; p++ {
 		portAvailable = true
 		for _, svc := range svcList.Items {
 			if svc.Spec.LoadBalancerIP != externalIPv4 {
