@@ -6,21 +6,21 @@ import (
 
 	"n2x.dev/x-cli/internal/app/cli/auth/login"
 	"n2x.dev/x-cli/pkg/client"
-	"n2x.dev/x-cli/pkg/output"
 	"n2x.dev/x-lib/pkg/utils/colors"
 	"n2x.dev/x-lib/pkg/version"
 )
 
 func header() {
 	fmt.Println(colors.Black(version.CLI_NAME + " " + version.GetVersion()))
-	output.AppHeader(false)
+	// output.AppHeader(false)
 }
 
 func appHeader(str string) string {
 	h1 := colors.Black(version.CLI_NAME + " " + version.GetVersion())
-	h2 := output.AppHeader(true)
+	// h2 := output.AppHeader(true)
 
-	return fmt.Sprintf("%s\n%s%s", h1, h2, str)
+	// return fmt.Sprintf("%s\n%s%s", h1, h2, str)
+	return fmt.Sprintf("%s\n\n%s", h1, str)
 }
 
 func preflightNoLogin() {
