@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"n2x.dev/x-cli/internal/app/cli/auth/login"
 	"n2x.dev/x-cli/pkg/client"
@@ -12,6 +11,7 @@ import (
 
 func header() {
 	fmt.Println(colors.Black(version.CLI_NAME + " " + version.GetVersion()))
+	fmt.Println()
 	// output.AppHeader(false)
 }
 
@@ -39,13 +39,15 @@ func preflightNoLogin() {
 func preflight() {
 	header()
 
-	if isConfigured {
-		// silent auto-login
-		autoLogin()
-	} else {
-		// notConfigured()
-		os.Exit(0)
-	}
+	autoLogin()
+
+	// if isConfigured {
+	// 	// silent auto-login
+	// 	autoLogin()
+	// } else {
+	// 	notConfigured()
+	// 	// os.Exit(0)
+	// }
 }
 
 func autoLogin() {
@@ -57,7 +59,7 @@ func autoLogin() {
 
 /*
 func notConfigured() {
-	msg.Error("Configuration not detected")
+	msg.Warn("Configuration not detected")
 
 	fmt.Printf("%s\n", colors.DarkBlue("_"))
 	cmd := colors.DarkWhite(fmt.Sprintf("%s setup", version.CLI_NAME))

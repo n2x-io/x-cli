@@ -118,7 +118,7 @@ func CmdLog(text string) {
 }
 
 func Authenticated() {
-	fmt.Printf("%s\n\n", colors.InvertedDarkCyanAlt("Authenticated"))
+	fmt.Printf("%s\n\n", colors.InvertedDarkCyan("Authenticated"))
 }
 
 func Logout() {

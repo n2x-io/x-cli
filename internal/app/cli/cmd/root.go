@@ -19,7 +19,7 @@ import (
 )
 
 var cfgFile string
-var newVersionAvailable, isConfigured bool
+var newVersionAvailable bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -80,7 +80,7 @@ func initConfig() {
 
 	viper.SetConfigFile(cfgFile)
 
-	viper.SetEnvPrefix("mm") // will be uppercased automatically
+	viper.SetEnvPrefix("n2x") // will be uppercased automatically
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -93,7 +93,7 @@ func initConfig() {
 		if err := viper.ReadInConfig(); err != nil {
 			status.Error(err, "Unable to read config file")
 		}
-		isConfigured = true
+		// isConfigured = true
 		// msg.Debugf("Using configuration file: %v", viper.ConfigFileUsed())
 	}
 
@@ -113,7 +113,7 @@ func execute() {
 		cmd := colors.DarkWhite(fmt.Sprintf("%s version update", version.CLI_NAME))
 		q := colors.DarkBlue("'")
 		msg := fmt.Sprintf("%s %s%s%s", colors.Black("New version available, please update with"), q, cmd, q)
-		fmt.Printf("%s %s\n\n", colors.Cyan("🢂"), msg)
+		fmt.Printf("%s %s\n\n", colors.Blue("➜"), msg)
 	}
 }
 

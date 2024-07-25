@@ -19,8 +19,8 @@ func SurveySetIcons(icons *survey.IconSet) {
 
 	// icons.SelectFocus.Text = "➡"
 	// icons.SelectFocus.Text = "➜"
-	// icons.SelectFocus.Text = "→"
-	icons.SelectFocus.Text = "🢂"
+	icons.SelectFocus.Text = "→"
+	// icons.SelectFocus.Text = "🢂"
 	icons.SelectFocus.Format = "green+hb"
 
 	survey.InputQuestionTemplate = `
