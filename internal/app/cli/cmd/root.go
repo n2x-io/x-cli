@@ -25,8 +25,7 @@ var newVersionAvailable bool
 var rootCmd = &cobra.Command{
 	Use:   version.CLI_NAME,
 	Short: version.CLI_NAME + " is a CLI to control the " + version.PLATFORM_NAME,
-	Long: version.CLI_NAME + ` is a CLI to control the ` +
-		version.PLATFORM_NAME + `.
+	Long: version.CLI_NAME + ` is a CLI to control the ` + version.PLATFORM_NAME + `.
 
 Find support and more information:
 

@@ -11,7 +11,14 @@ import (
 
 func header() {
 	fmt.Println(colors.Black(version.CLI_NAME + " " + version.GetVersion()))
+
 	fmt.Println()
+
+	fmt.Printf("%s is a CLI to control the %s.\n\n",
+		version.CLI_NAME, version.PLATFORM_NAME)
+
+	fmt.Printf("Find more information at %s\n\n", colors.White("https://n2x.io/docs"))
+
 	// output.AppHeader(false)
 }
 
