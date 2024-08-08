@@ -13,7 +13,7 @@ Open source projects from [n2x.io](https://n2x.io).
 [![Release](https://img.shields.io/github/v/release/n2x-io/c-cli?display_name=tag&style=flat)](https://github.com/n2x-io/x-cli/releases/latest)
 [![GitHub](https://img.shields.io/github/license/n2x-io/x-cli?style=flat)](/LICENSE)
 
-This repository contains `n2xctl`, a tool for managing the [n2x](https://n2x.io) SASE platform from the command line.
+This repository contains `n2xctl`, a tool for managing the [n2x.io](https://n2x.io) SASE platform from the command line.
 
 `n2xctl` is available for a variety of Linux platforms, macOS and Windows.
 
@@ -28,15 +28,17 @@ This repository contains `n2xctl`, a tool for managing the [n2x](https://n2x.io)
 
 ## Getting Started
 
-See [Quick Start](https://n2x.io/docs/platform/getting-started/quickstart/) to learn how to start building your n2x cloud-agnostic architecture.
+See [Quick Start](https://n2x.io/docs/getting-started/quickstart/) to learn how to start building your n2x cloud-agnostic architecture.
+
+See [Installation](#installation) for more details and other platforms.
 
 ## Documentation
 
-For the complete n2x platform documentation visit [n2x.io/docs](https://n2x.io/docs/).
+For the complete n2x.io platform documentation visit [n2x.io/docs](https://n2x.io/docs/).
 
 ## Installation
 
-### Binary Downloads
+### Download Binaries
 
 Linux, macOS and Windows binary downloads are available from the [Releases](https://github.com/n2x-io/x-cli/releases) page.
 
@@ -54,13 +56,13 @@ You can download the pre-compiled binaries and install them with the appropriate
 
 2. Validate the binary (optional).
 
-    Download the n2xctl checksum file:
+    Download the `n2xctl` checksum file:
 
     ```shell
     curl -LO "https://dl.n2x.io/binaries/stable/latest/linux/amd64/n2xctl_checksum.sha256"
     ```
 
-    Validate the n2xctl binary against the checksum file:
+    Validate the `n2xctl` binary against the checksum file:
 
     ```bash
     sha256sum --check < n2xctl_checksum.sha256
@@ -95,34 +97,56 @@ You can download the pre-compiled binaries and install them with the appropriate
     > # and then append (or prepend) ~/.local/bin to $PATH
     > ```
 
+4. Verify that the installed version is the latest:
+
+    ```shell
+    n2xctl version show
+    ```
+
 #### Package Repository
 
-n2x provides a package repository that contains both DEB and RPM downloads.
+n2x.io provides a package repository that contains both DEB and RPM downloads.
 
-For DEB-based platforms (e.g. Ubuntu and Debian) run the following to set up a new APT sources.list entry and install `n2x-cli`:
+##### **Debian/Ubuntu**
 
-```shell
-echo 'deb [trusted=yes] https://repo.n2x.io/apt/ /' | sudo tee /etc/apt/sources.list.d/n2x.list
-sudo apt update
-sudo apt install n2x-cli
-```
+1. Run the following to setup a new APT `sources.list` entry and install `n2x-cli`:
 
-For RPM-based platforms (e.g. RHEL, CentOS) use the following to create a repo file and install `n2x-cli`:
+    ```shell
+    echo 'deb [trusted=yes] https://repo.n2x.io/apt/ /' | sudo tee /etc/apt/sources.list.d/n2x.list
+    sudo apt update
+    sudo apt install n2x-cli
+    ```
 
-```shell
-cat <<EOF | sudo tee /etc/yum.repos.d/n2x.repo
-[n2x]
-name=n2x repository - stable
-baseurl=https://repo.n2x.io/yum
-enabled=1
-gpgcheck=0
-EOF
-sudo yum install n2x-cli
-```
+2. Verify that the installed version is the latest:
+
+    ```shell
+    n2xctl version show
+    ```
+
+##### **RHEL/CentOS** 
+
+1. Run the following to create a `n2x.repo` file and install `n2x-cli`:
+
+    ```shell
+    cat <<EOF | sudo tee /etc/yum.repos.d/n2x.repo
+    [n2x]
+    name=n2x repository - stable
+    baseurl=https://repo.n2x.io/yum
+    enabled=1
+    gpgcheck=0
+    EOF
+    sudo yum install n2x-cli
+    ```
+
+2. Verify that the installed version is the latest:
+
+    ```shell
+    n2xctl version show
+    ```
 
 #### Homebrew installation on Linux
 
-If you are on Linux and using [Homebrew](https://docs.brew.sh/Homebrew-on-Linux) package manager, you can install the n2x CLI with Homebrew.
+If you are on Linux and using [Homebrew](https://docs.brew.sh/Homebrew-on-Linux) package manager, you can install the n2x.io CLI with Homebrew.
 
 1. Run the installation command:
 
@@ -130,7 +154,7 @@ If you are on Linux and using [Homebrew](https://docs.brew.sh/Homebrew-on-Linux)
     brew install n2x-io/tap/n2x-cli
     ```
 
-2. Test to ensure the version you installed is up-to-date:
+2. Verify that the installed version is the latest:
 
     ```shell
     n2xctl version show
@@ -156,7 +180,7 @@ If you are on Linux and using [Homebrew](https://docs.brew.sh/Homebrew-on-Linux)
 
 2. Validate the binary (optional).
 
-    Download the n2xctl checksum file:
+    Download the `n2xctl` checksum file:
 
     **Intel**:
 
@@ -170,7 +194,7 @@ If you are on Linux and using [Homebrew](https://docs.brew.sh/Homebrew-on-Linux)
     curl -LO "https://dl.n2x.io/binaries/stable/latest/darwin/arm64/n2xctl_checksum.sha256"
     ```
 
-    Validate the n2xctl binary against the checksum file:
+    Validate the `n2xctl` binary against the checksum file:
 
     ```console
     shasum --algorithm 256 --check n2xctl_checksum.sha256
@@ -189,13 +213,13 @@ If you are on Linux and using [Homebrew](https://docs.brew.sh/Homebrew-on-Linux)
     sha256sum: WARNING: 1 computed checksum did NOT match
     ```
 
-3. Make the n2xctl binary executable.
+3. Make the `n2xctl` binary executable.
 
     ```shell
     chmod +x n2xctl
     ```
 
-4. Move the n2xctl binary to a file location on your system `PATH`.
+4. Move the `n2xctl` binary to a file location on your system `PATH`.
 
     ```shell
     sudo mkdir -p /usr/local/bin
@@ -205,9 +229,15 @@ If you are on Linux and using [Homebrew](https://docs.brew.sh/Homebrew-on-Linux)
 
     > **Note**: Make sure `/usr/local/bin` is in your `PATH` environment variable.
 
+5. Verify that the installed version is the latest:
+
+    ```shell
+    n2xctl version show
+    ```
+
 #### Homebrew installation on macOS
 
-If you are on macOS and using [Homebrew](https://brew.sh/) package manager, you can install the n2x CLI with Homebrew.
+If you are on macOS and using [Homebrew](https://brew.sh/) package manager, you can install the n2x.io CLI with Homebrew.
 
 1. Run the installation command:
 
@@ -215,7 +245,7 @@ If you are on macOS and using [Homebrew](https://brew.sh/) package manager, you 
     brew install n2x-io/tap/n2x-cli
     ```
 
-2. Test to ensure the version you installed is up-to-date:
+2. Verify that the installed version is the latest:
 
     ```shell
     n2xctl version show
@@ -225,13 +255,13 @@ If you are on macOS and using [Homebrew](https://brew.sh/) package manager, you 
 
 #### Windows binary installation with curl
 
-1. Open the Command Prompt as Administrator and create a folder for n2x.
+1. Open the Windows PowerShell as Administrator and create the `n2x` folder.
 
     ```shell
     mkdir 'C:\Program Files\n2x'
     ```
 
-2. Download the latest release into the n2x folder.
+2. Download the latest release into the `n2x` folder.
 
     ```shell
     curl -LO "https://dl.n2x.io/binaries/stable/latest/windows/amd64/n2xctl.exe"
@@ -239,13 +269,13 @@ If you are on macOS and using [Homebrew](https://brew.sh/) package manager, you 
 
 3. Validate the binary (optional).
 
-    Download the n2xctl.exe checksum file:
+    Download the `n2xctl.exe` checksum file:
 
     ```shell
     curl -LO "https://dl.n2x.io/binaries/stable/latest/windows/amd64/n2xctl.exe_checksum.sha256"
     ```
 
-    Validate the n2xctl.exe binary against the checksum file:
+    Validate the `n2xctl.exe` binary against the checksum file:
 
     - Using Command Prompt to manually compare CertUtil's output to the checksum file downloaded:
 
@@ -260,12 +290,31 @@ If you are on macOS and using [Homebrew](https://brew.sh/) package manager, you 
          $($(CertUtil -hashfile n2xctl.exe SHA256)[1] -replace " ", "") -eq $(type n2xctl.exe_checksum.sha256).split(" ")[0]
          ```
 
-4. Append or prepend the folder `C:\Program Files\n2x` to your `PATH` environment variable.
-5. Test to ensure the version of n2xctl is the same as downloaded.
+4. Add the folder `C:\Program Files\n2x` to your `PATH` environment variable. You can either append or prepend it to the existing value.
+
+    ```powershell
+    $ENV:PATH="$ENV:PATH;C:\Program Files\n2x"
+    ```
+
+5. Verify that the installed version is the latest:
 
     ```shell
     n2xctl version show
     ```
+
+## Running with Docker
+
+You can also run `n2xctl` as a Docker container.
+
+Registry:
+
+- `ghcr.io/n2x-io/n2xctl`
+
+Example usage:
+
+```shell
+docker run --rm -ti -v $HOME/.n2x:/root/.n2x:ro ghcr.io/n2x-io/n2xctl help
+```
 
 ## Artifacts Verification
 
@@ -300,33 +349,60 @@ Verify the signatures:
 COSIGN_EXPERIMENTAL=1 cosign verify ghcr.io/n2x-io/n2xctl
 ```
 
-## Configuration
-
-The first time you run `n2xctl`, you will be assisted to generate your `n2xctl.yml`. This config file will be located by default at the `$HOME/.n2x` directory.
-
-See the [n2xctl configuration reference](https://n2x.io/docs/platform/reference/n2xctl.yml/) to find all the configuration options.
-
 ## Usage
 
-See usage with:
+To view a list of available commands and options, simply run:
 
 ```shell
 n2xctl help
 ```
 
-## Running with Docker
+For in-depth information about specific commands and their usage, refer to our dedicated [CLI Command Reference](https://n2x.io/docs/reference/cli-command-reference/) guide.
 
-You can also run `n2xctl` as a Docker container. See the example below.
+## Uninstall
 
-Registries:
+### Uninstall n2x-cli in Linux
 
-- `ghcr.io/n2x-io/n2xctl`
-- ~~`n2xdev/n2xctl`~~
+To remove `n2xctl` from the system, use the following commands:
 
-Example usage:
+#### Binary
 
 ```shell
-docker run --rm -ti -v $HOME/.n2x:/root/.n2x:ro ghcr.io/n2x-io/n2xctl help
+sudo rm /usr/local/bin/n2xctl
+sudo rm -f $HOME/.n2x
+```
+
+#### Package Repository
+
+##### **Debian/Ubuntu**
+
+```shell
+sudo apt-get -y remove n2x-cli
+sudo rm -f $HOME/.n2x
+```
+
+##### **RHEL/Centos**
+
+```shell
+sudo yum -y remove n2x-cli
+sudo rm -f $HOME/.n2x
+```
+
+### Uninstall n2x-cli in macOS
+
+To remove `n2xctl` from the system, use the following commands:
+
+```shell
+sudo rm /usr/local/bin/n2xctl
+sudo rm -f $HOME/.n2x
+```
+
+### Uninstall n2x-cli in macOS
+
+To remove `n2xctl` from the system, open the Windows PowerShell as Administrator and use the following commands:
+
+```powershell
+rm 'C:\Program Files\n2x' -r -force
 ```
 
 ## Community
